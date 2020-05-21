@@ -1,2 +1,2 @@
 # ts-axios
-typescript 手写 axios
+使用 typescript 实现 axios
