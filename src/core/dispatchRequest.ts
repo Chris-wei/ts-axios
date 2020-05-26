@@ -1,8 +1,9 @@
 import {AxiosPromise, AxiosRequestConfig, AxiosResponse} from "../types";
 import xhr from './xhr'
 import {buildURL} from "../helpers/url";
-import {transformRequest, transformResponse} from "../helpers/data";
-import {processHeaders} from "../helpers/headers";
+import {transformRequest} from "../helpers/data";
+import {flattenHeaders, processHeaders} from "../helpers/headers";
+import {transform} from "./transform";
 
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
     // 处理参数
@@ -19,9 +20,12 @@ function processConfig(config: AxiosRequestConfig): void {
     // 处理请求 url 参数
     config.url = transformURL(config)
     // 处理请求头 headers
-    config.headers = transformHeaders(config)
+    // config.headers = transformHeaders(config)
     // 处理请求 body 参数
-    config.data = transformRequestData(config)
+    // config.data = transformRequestData(config)
+    config.data = transform(config.data, config.headers,config.transformRequest)
+    // 合并headers配置
+    config.headers = flattenHeaders(config.headers, config.method!)
 }
 
 
@@ -48,6 +52,7 @@ function transformHeaders(config: AxiosRequestConfig): any {
 
 // 处理响应的 data
 function transformResponseData(res: AxiosResponse): AxiosResponse {
-    res.data = transformResponse(res.data)
+    // res.data = transformResponse(res.data)
+    res.data = transform(res.data, res.headers, res.config.transformResponse)
     return res
 }

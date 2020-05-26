@@ -1,16 +1,74 @@
-import {Axios as AxiosInterface, AxiosPromise, AxiosRequestConfig, Method} from "../types";
+import {
+    Axios as AxiosInterface,
+    AxiosPromise,
+    AxiosRequestConfig,
+    AxiosResponse,
+    Method,
+    RejectedFn,
+    ResolvedFn
+} from "../types";
+import InterceptorManager from "./interceptorManager"
 import dispatchRequest from './dispatchRequest'
+import mergeConfig from "./mergeConfig";
+
+interface Interceptors {
+    request: InterceptorManager<AxiosRequestConfig>,
+    response: InterceptorManager<AxiosResponse>
+}
+
+interface PromiseChain<T> {
+    resolved: ResolvedFn<T> | ((config: AxiosRequestConfig) => AxiosPromise),
+    rejected?: RejectedFn
+}
 
 export default class Axios implements AxiosInterface {
+
+    defaults: AxiosRequestConfig
+
+    interceptors: Interceptors
+
+    constructor(initConfig: AxiosRequestConfig) {
+        this.defaults = initConfig
+        this.interceptors = {
+            request: new InterceptorManager<AxiosRequestConfig>(),
+            response: new InterceptorManager<AxiosResponse>()
+        }
+    }
+
     // 函数重载 request(config) 或者 request(url,config)
-    request(url:any , config?: any): AxiosPromise {
-        if( typeof url === 'string' ){
-            if(!config) config = {}
+    request(url: any, config?: any): AxiosPromise {
+        if (typeof url === 'string') {
+            if (!config) config = {}
             config.url = url
-        }else{
+        } else {
             config = url
         }
-        return dispatchRequest(config)
+
+        config = mergeConfig(this.defaults, config)
+
+        const chain: PromiseChain<any>[] = [{
+            resolved: dispatchRequest,
+            rejected: undefined
+        }]
+
+        // 请求拦截器
+        this.interceptors.request.forEach(interceptor => {
+            chain.unshift(interceptor)
+        })
+
+        // 响应拦截器
+        this.interceptors.response.forEach(interceptor => {
+            chain.push(interceptor)
+        })
+
+        let promise = Promise.resolve(config)
+
+        while (chain.length) {
+            const {resolved, rejected} = chain.shift()!
+            promise = promise.then(resolved, rejected)
+        }
+
+        return promise
     }
 
     get(url: string, config?: AxiosRequestConfig): AxiosPromise {

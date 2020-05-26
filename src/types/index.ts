@@ -1,4 +1,6 @@
 // 请求类型约束
+
+
 export type Method = 'get' | 'GET'
     | 'delete' | 'DELETE'
     | 'head' | 'HEAD'
@@ -16,6 +18,10 @@ export interface AxiosRequestConfig {
     params?: any | 'opt'
     responseType?: XMLHttpRequestResponseType
     timeout?: number
+    transformRequest?: AxiosTransformer | AxiosTransformer[]
+    transformResponse?: AxiosTransformer | AxiosTransformer[]
+
+    [prop: string]: any
 }
 
 // 定义返回值类型
@@ -46,6 +52,14 @@ export interface AxiosError {
 
 // 定义axois接口
 export interface Axios {
+
+    defaults: AxiosRequestConfig
+
+    interceptors: {
+        request: AxiosInterceptorManager<AxiosRequestConfig>
+        response: AxiosInterceptorManager<AxiosResponse>
+    }
+
     request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
 
     get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
@@ -68,4 +82,29 @@ export interface AxiosInstance extends Axios {
     <T = any>(config: AxiosRequestConfig): AxiosPromise<T>
 
     <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
+}
+
+export interface AxiosStatic extends AxiosInstance {
+    create(config?: AxiosRequestConfig): AxiosInstance
+}
+
+// 拦截器 接口
+export interface AxiosInterceptorManager<T> {
+    use(resolved: ResolvedFn<T>, reject?: RejectedFn): number
+
+    eject(id: number): void
+}
+
+export interface ResolvedFn<T> {
+    (val: T): T | Promise<T>
+}
+
+export interface RejectedFn {
+    (error: any): any
+}
+
+
+// 转换类型
+export interface AxiosTransformer {
+    (data: any, headers?: any): any
 }
