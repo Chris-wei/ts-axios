@@ -12,19 +12,18 @@ import dispatchRequest from './dispatchRequest'
 import mergeConfig from "./mergeConfig";
 
 interface Interceptors {
-    request: InterceptorManager<AxiosRequestConfig>,
+    request: InterceptorManager<AxiosRequestConfig>
     response: InterceptorManager<AxiosResponse>
 }
 
 interface PromiseChain<T> {
-    resolved: ResolvedFn<T> | ((config: AxiosRequestConfig) => AxiosPromise),
+    resolved: ResolvedFn<T> | ((config: AxiosRequestConfig) => AxiosPromise)
     rejected?: RejectedFn
 }
 
 export default class Axios implements AxiosInterface {
 
     defaults: AxiosRequestConfig
-
     interceptors: Interceptors
 
     constructor(initConfig: AxiosRequestConfig) {
@@ -45,11 +44,14 @@ export default class Axios implements AxiosInterface {
         }
 
         config = mergeConfig(this.defaults, config)
+        config.method = config.method.toLowerCase()
 
-        const chain: PromiseChain<any>[] = [{
-            resolved: dispatchRequest,
-            rejected: undefined
-        }]
+        const chain: PromiseChain<any>[] = [
+            {
+                resolved: dispatchRequest,
+                rejected: undefined
+            }
+        ]
 
         // 请求拦截器
         this.interceptors.request.forEach(interceptor => {
@@ -101,7 +103,7 @@ export default class Axios implements AxiosInterface {
 
     // 统一封装类似 get 的请求
     _requestMethodWithoutData(method: Method, url: string, config?: AxiosRequestConfig) {
-        return dispatchRequest(Object.assign(config || {}, {
+        return this.request(Object.assign(config || {}, {
             method,
             url
         }))
@@ -109,7 +111,7 @@ export default class Axios implements AxiosInterface {
 
     // 统一封装类似 post 的请求
     _requestMethodWithData(method: Method, url: string, data?: any, config?: AxiosRequestConfig) {
-        return dispatchRequest(Object.assign(config || {}, {
+        return this.request(Object.assign(config || {}, {
             method,
             data,
             url

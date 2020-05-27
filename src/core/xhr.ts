@@ -4,7 +4,7 @@ import {createError} from "../helpers/error";
 // 请求方法
 export default function (config: AxiosRequestConfig): AxiosPromise {
     return new Promise((resolve, reject) => {
-        const {url, data = null, method = 'get', headers, responseType, timeout} = config;
+        const {url, data = null, method = 'get', headers, responseType, timeout, cancelToken} = config;
 
         // 请求实例
         const request = new XMLHttpRequest()
@@ -57,6 +57,19 @@ export default function (config: AxiosRequestConfig): AxiosPromise {
         Object.keys(headers).forEach((name) => {
             request.setRequestHeader(name, headers[name])
         })
+
+        // 取消发送
+        if (cancelToken) {
+            cancelToken.promise.then(reason => {
+                request.abort()
+                reject(reason)
+            }).catch(
+                /* istanbul ignore next */
+                () => {
+                    // do nothing
+                }
+            )
+        }
 
         // 发送请求
         request.send(data)
