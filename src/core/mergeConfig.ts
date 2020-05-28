@@ -4,7 +4,7 @@ import {isPlainObject,deepMerge} from "../helpers/utils";
 const strats = Object.create(null)
 
 const stratKeysFromVal2 = ['url', 'params', 'data']
-const starctKeysDeepMerge = ['headers']
+const starctKeysDeepMerge = ['headers','auth']
 
 stratKeysFromVal2.forEach(key => {
     strats[key] = fromVal2Strat;

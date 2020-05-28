@@ -11,6 +11,7 @@ export type Method = 'get' | 'GET'
 
 // axios config 接口约束
 export interface AxiosRequestConfig {
+    baseURL?:string
     url?: string
     method?: Method
     headers?: any
@@ -21,6 +22,14 @@ export interface AxiosRequestConfig {
     transformRequest?: AxiosTransformer | AxiosTransformer[]
     transformResponse?: AxiosTransformer | AxiosTransformer[]
     cancelToken?: CancelToken
+    withCredentials?: boolean
+    xsrfCookieName?: string
+    xsrfHeaderName?: string
+    auth?: AxiosBasicCredentials
+    validateStatus?: (status: number) => boolean
+    onDownloadProgress?: (e: ProgressEvent) => void
+    onUploadProgress?: (e: ProgressEvent) => void
+    paramsSerializer?: (params?: any) => string
 
     [prop: string]: any
 }
@@ -149,4 +158,10 @@ export interface Cancel {
 
 export interface CancelStatic {
     new(message?: string): Cancel
+}
+
+// 授权
+export interface AxiosBasicCredentials {
+    username: string
+    password: string
 }

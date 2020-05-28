@@ -25,22 +25,32 @@ export function extend<T, U>(to: T, from: U): T & U {
 
 
 // 深拷贝
-export function deepMerge(...objs:any[]):any {
+export function deepMerge(...objs: any[]): any {
     const result = Object.create(null)
-    objs.forEach(obj=>{
-        if(obj) {
-           Object.keys(obj).forEach(key=>{
-               const val = obj[key]
-               if( isPlainObject(val) ) {
-                   if( isPlainObject(result[key])){
-                       result[key]=deepMerge(result[key],val)
-                   }else{
-                       result[key]=deepMerge(val)
-                   }
-               }
-               else result[key] = val
-           })
+    objs.forEach(obj => {
+        if (obj) {
+            Object.keys(obj).forEach(key => {
+                const val = obj[key]
+                if (isPlainObject(val)) {
+                    if (isPlainObject(result[key])) {
+                        result[key] = deepMerge(result[key], val)
+                    } else {
+                        result[key] = deepMerge(val)
+                    }
+                } else result[key] = val
+            })
         }
     })
     return result
+}
+
+
+// 判断是不是form-data
+export function isFormData(val: any): val is FormData {
+    return typeof val !== 'undefined' && val instanceof FormData
+}
+
+// 判断是否是 urlSearchParams
+export function isURLSearchParams(params: any): params is URLSearchParams {
+    return typeof params !== 'undefined' && params instanceof URLSearchParams
 }
