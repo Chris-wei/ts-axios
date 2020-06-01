@@ -8,7 +8,7 @@ import {
     ResolvedFn
 } from "../types";
 import InterceptorManager from "./interceptorManager"
-import dispatchRequest from './dispatchRequest'
+import dispatchRequest,{transformURL} from './dispatchRequest'
 import mergeConfig from "./mergeConfig";
 
 interface Interceptors {
@@ -99,6 +99,11 @@ export default class Axios implements AxiosInterface {
 
     patch(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise {
         return this._requestMethodWithData('patch', url, data, config)
+    }
+
+    getUri(config?: AxiosRequestConfig): string {
+        config = mergeConfig(this.defaults, config)
+        return transformURL(config)
     }
 
     // 统一封装类似 get 的请求

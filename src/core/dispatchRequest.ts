@@ -1,9 +1,9 @@
 import {AxiosPromise, AxiosRequestConfig, AxiosResponse} from "../types";
 import xhr from './xhr'
 import {buildURL, combineURL, isAbsoluteURL} from "../helpers/url";
-import {transformRequest} from "../helpers/data";
-import {flattenHeaders, processHeaders} from "../helpers/headers";
-import {transform} from "./transform";
+// import {transformRequest} from "../helpers/data";
+import {flattenHeaders} from "../helpers/headers";
+import transform from "./transform";
 
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
     throwIfCancellationRequested(config)
@@ -12,6 +12,9 @@ export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromis
     // 发送请求
     return xhr(config).then(res => {
         return transformResponseData(res)
+    }, e => {
+        if (e && e.response) e.response = transformResponseData(e.response)
+        return Promise.reject(e)
     })
 }
 
@@ -31,26 +34,26 @@ function processConfig(config: AxiosRequestConfig): void {
 
 
 // url 转换
-function transformURL(config: AxiosRequestConfig): string {
+export function transformURL(config: AxiosRequestConfig): string {
     let {baseURL, url, params, paramsSerializer} = config;
     if (baseURL && !isAbsoluteURL(url!)) url = combineURL(baseURL, url)
     // 处理url参数
     return buildURL(url!, params, paramsSerializer)
 }
 
-// body 参数
-function transformRequestData(config: AxiosRequestConfig): any {
-    // 处理 body 参数
-    return transformRequest(config.data)
-}
-
-
-// headers 处理
-function transformHeaders(config: AxiosRequestConfig): any {
-    const {headers = {}, data} = config
-    // 处理 headers 参数
-    return processHeaders(headers, data)
-}
+// // body 参数
+// function transformRequestData(config: AxiosRequestConfig): any {
+//     // 处理 body 参数
+//     return transformRequest(config.data)
+// }
+//
+//
+// // headers 处理
+// function transformHeaders(config: AxiosRequestConfig): any {
+//     const {headers = {}, data} = config
+//     // 处理 headers 参数
+//     return processHeaders(headers, data)
+// }
 
 // 处理响应的 data
 function transformResponseData(res: AxiosResponse): AxiosResponse {

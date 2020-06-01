@@ -14,8 +14,13 @@ starctKeysDeepMerge.forEach(key => {
     strats[key] = deepMergeStrat;
 })
 
-export default function mergeConfig(config1: AxiosRequestConfig, config2?: AxiosRequestConfig): AxiosRequestConfig {
+export default function mergeConfig(
+    config1: AxiosRequestConfig,
+    config2?: AxiosRequestConfig
+): AxiosRequestConfig {
+
     if (!config2) config2 = {}
+
     // 创建空对象
     const config = Object.create(null)
 
@@ -53,7 +58,7 @@ function deepMergeStrat(val1: any, val2: any): any {
         return val2
     } else if (isPlainObject(val1)) {
         return deepMerge(val1)
-    } else if (typeof val1 !== 'undefined') {
+    } else {
         return val1
     }
 }

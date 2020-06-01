@@ -1,6 +1,5 @@
-import {RejectedFn, ResolvedFn} from "../types";
+import { ResolvedFn, RejectedFn } from '../types'
 
-// 拦截器类
 interface Interceptor<T> {
     resolved: ResolvedFn<T>
     rejected?: RejectedFn
@@ -13,7 +12,6 @@ export default class InterceptorManager<T> {
         this.interceptors = []
     }
 
-    // 添加拦截器
     use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number {
         this.interceptors.push({
             resolved,
@@ -22,18 +20,17 @@ export default class InterceptorManager<T> {
         return this.interceptors.length - 1
     }
 
-    // 遍历拦截器
     forEach(fn: (interceptor: Interceptor<T>) => void): void {
         this.interceptors.forEach(interceptor => {
-            if (interceptor !== null) fn(interceptor)
+            if (interceptor !== null) {
+                fn(interceptor)
+            }
         })
     }
 
-    // 取消拦截器
     eject(id: number): void {
         if (this.interceptors[id]) {
             this.interceptors[id] = null
         }
     }
-
 }

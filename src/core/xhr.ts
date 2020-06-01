@@ -9,7 +9,7 @@ import {isFormData} from "../helpers/utils";
 export default function (config: AxiosRequestConfig): AxiosPromise {
     return new Promise((resolve, reject) => {
         const {
-            url, data = null, method = 'get', headers, responseType,
+            url, data = null, method, headers={}, responseType,
             timeout, cancelToken, withCredentials, xsrfCookieName, xsrfHeaderName,
             auth, onDownloadProgress, onUploadProgress, validateStatus
         } = config;
@@ -17,7 +17,7 @@ export default function (config: AxiosRequestConfig): AxiosPromise {
         // 请求实例
         const request = new XMLHttpRequest()
         // 设置请求方法
-        request.open(method.toUpperCase(), url!, true)
+        request.open(method!.toUpperCase(), url!, true)
 
         configRequest()
 
@@ -55,14 +55,14 @@ export default function (config: AxiosRequestConfig): AxiosPromise {
                 // 获取响应头
                 const responseHeaders = parseHeaders(request.getAllResponseHeaders())
                 // 获取响应数据
-                const responseData = responseType !== 'text' ? request.response : request.responseText
+                const responseData = responseType && responseType !== 'text' ? request.response : request.responseText
                 // 构造响应数据
                 const response: AxiosResponse = {
                     data: responseData,
                     headers: responseHeaders,
                     status: request.status,
                     statusText: request.statusText,
-                    request: request,
+                    request,
                     config
                 }
                 // 处理不同状态码
@@ -105,7 +105,11 @@ export default function (config: AxiosRequestConfig): AxiosPromise {
 
             // 设置请求头
             Object.keys(headers).forEach((name) => {
-                request.setRequestHeader(name, headers[name])
+                if (data === null && name.toLowerCase() === 'content-type') {
+                    delete headers[name]
+                } else {
+                    request.setRequestHeader(name, headers[name])
+                }
             })
         }
 

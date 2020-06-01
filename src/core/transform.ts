@@ -1,11 +1,19 @@
-import {AxiosTransformer} from "../types";
+import {AxiosTransformer} from '../types'
 
-export function transform(data: any, headers: any, fns?: AxiosTransformer | AxiosTransformer[]): any {
-    if (!fns) return data;
-    if (!Array.isArray(fns)) fns = [fns]
+export default function transform(
+    data: any,
+    headers: any,
+    fns?: AxiosTransformer | AxiosTransformer[]
+): any {
+    if (!fns) return data
+
+    if (!Array.isArray(fns)) {
+        fns = [fns]
+    }
 
     fns.forEach(fn => {
         data = fn(data, headers)
     })
-    return  data
+
+    return data
 }
